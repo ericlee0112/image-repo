@@ -16,6 +16,15 @@
       <tr>
         <td><%= post.title %></td>
         <td><%= post.body %></td>
+        <td>
+          <div style="width:50px, height:auto">
+            <%= (0...post.images.count).each do |image| %>
+              <%= image_tag(post.images[image], style:"width:30%")  %>
+              <br/>
+              <br/>
+            <% end %>
+          </div>
+        </td>
         <td><%= link_to 'Show', post %></td>
         <td><%= link_to 'Edit', edit_post_path(post) %></td>
         <td><%= link_to 'Destroy', post, method: :delete, data: { confirm: 'Are you sure?' } %></td>
