@@ -24,8 +24,12 @@ class PostsController < ApplicationController
   # POST /posts
   # POST /posts.json
   def create
-    @post = Post.new(post_params)
-
+    post_params[:images].each do |image|
+      @post = Post.new({:title => post_params[:title], :body => post_params[:body], :images => image})
+      @post.save
+    end
+    redirect_to('/')
+=begin
     respond_to do |format|
       if @post.save
         format.html { redirect_to @post, notice: 'Post was successfully created.' }
@@ -35,6 +39,7 @@ class PostsController < ApplicationController
         format.json { render json: @post.errors, status: :unprocessable_entity }
       end
     end
+=end
   end
 
   # PATCH/PUT /posts/1
@@ -69,6 +74,6 @@ class PostsController < ApplicationController
 
     # Never trust parameters from the scary internet, only allow the white list through.
     def post_params
-      params.require(:post).permit(:title, :body)
+      params.require(:post).permit(:title, :body, images: [])
     end
 end

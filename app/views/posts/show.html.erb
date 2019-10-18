@@ -5,6 +5,12 @@
   <%= @post.title %>
 </p>
 
+<%= (0...@post.images.count).each do |image| %>
+  <%= image_tag(@post.images[image])  %>
+  <br/>
+  <br/>
+<% end %>
+
 <p>
   <strong>Body:</strong>
   <%= @post.body %>
