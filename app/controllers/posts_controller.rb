@@ -1,6 +1,7 @@
+require 'sidekiq/api'
 class PostsController < ApplicationController
   before_action :set_post, only: [:show, :edit, :update, :destroy]
-
+  before_action :wait_for_sidekiq, only: [:create, :index]
   # GET /posts
   # GET /posts.json
   def index
@@ -24,22 +25,10 @@ class PostsController < ApplicationController
   # POST /posts
   # POST /posts.json
   def create
-    post_params[:images].each do |image|
-      @post = Post.new({:title => post_params[:title], :images => image})
-      @post.save
-    end
+    ImageWorker.perform_async(post_params[:images], post_params[:title])
+    flash[:notice] = 'photos being bulk-uploaded to repository'
+    sleep(1)
     redirect_to('/')
-=begin
-    respond_to do |format|
-      if @post.save
-        format.html { redirect_to @post, notice: 'Post was successfully created.' }
-        format.json { render :show, status: :created, location: @post }
-      else
-        format.html { render :new }
-        format.json { render json: @post.errors, status: :unprocessable_entity }
-      end
-    end
-=end
   end
 
   # PATCH/PUT /posts/1
@@ -75,5 +64,9 @@ class PostsController < ApplicationController
     # Never trust parameters from the scary internet, only allow the white list through.
     def post_params
       params.require(:post).permit(:title, :body, images: [])
+    end
+
+    def wait_for_sidekiq
+      sleep(1) until Sidekiq::Workers.new.size == 0 && Sidekiq::Queue.new.size == 0
     end
 end
