@@ -4,7 +4,7 @@ class PostsController < ApplicationController
   # GET /posts
   # GET /posts.json
   def index
-    @posts = Post.all
+    @posts = Post.all.order('created_at DESC')
   end
 
   # GET /posts/1
@@ -25,7 +25,7 @@ class PostsController < ApplicationController
   # POST /posts.json
   def create
     post_params[:images].each do |image|
-      @post = Post.new({:title => post_params[:title], :body => post_params[:body], :images => image})
+      @post = Post.new({:title => post_params[:title], :images => image})
       @post.save
     end
     redirect_to('/')
