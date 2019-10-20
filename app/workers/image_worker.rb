@@ -1,4 +1,3 @@
-#app/workers/image_worker.rb
 class ImageWorker
   include Sidekiq::Worker
 

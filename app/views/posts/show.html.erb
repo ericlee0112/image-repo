@@ -4,13 +4,8 @@
   <strong>Title:</strong>
   <%= @post.title %>
 </p>
-
-<%= (0...@post.images.count).each do |image| %>
-  <%= image_tag(@post.images[image])  %>
-  <br/>
-  <br/>
-<% end %>
-
-
+<%= image_tag(@post.images[0])  %>
+<br/>
+<br/>
 <%= link_to 'Edit', edit_post_path(@post) %> |
 <%= link_to 'Back', posts_path %>

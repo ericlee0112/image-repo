@@ -1,38 +1,43 @@
 require 'sidekiq/api'
 class PostsController < ApplicationController
   before_action :set_post, only: [:show, :edit, :update, :destroy]
-  before_action :wait_for_sidekiq, only: [:create, :index]
-  # GET /posts
-  # GET /posts.json
+  after_action :wait_for_sidekiq, only: [:create]
+
   def index
     @posts = Post.all.order('created_at DESC')
   end
 
-  # GET /posts/1
-  # GET /posts/1.json
   def show
   end
 
-  # GET /posts/new
   def new
     @post = Post.new
   end
 
-  # GET /posts/1/edit
   def edit
   end
 
-  # POST /posts
-  # POST /posts.json
   def create
-    ImageWorker.perform_async(post_params[:images], post_params[:title])
-    flash[:notice] = 'photos being bulk-uploaded to repository'
-    sleep(1)
-    redirect_to('/')
+    if post_params[:images].count == 1
+      @post = Post.new({:title => post_params[:title], :images => post_params[:images]})
+      result = @post.save
+    else
+      result = ImageWorker.perform_async(post_params[:images], post_params[:title])
+      flash[:notice] = 'photos bulk-uploaded to repository'
+      sleep(0.5)
+    end
+    
+    respond_to do |format|
+      if result
+        format.html { redirect_to '/', notice: 'Post(s) were successfully uploaded.' }
+        format.json { render :index, status: :created}
+      else
+        format.html { render :new }
+        format.json { render json: result.errors, status: :unprocessable_entity }
+      end
+    end
   end
 
-  # PATCH/PUT /posts/1
-  # PATCH/PUT /posts/1.json
   def update
     respond_to do |format|
       if @post.update(post_params)
@@ -45,8 +50,6 @@ class PostsController < ApplicationController
     end
   end
 
-  # DELETE /posts/1
-  # DELETE /posts/1.json
   def destroy
     @post.destroy
     respond_to do |format|

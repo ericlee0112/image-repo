@@ -3,14 +3,12 @@
 <h1>Photo Repository</h1>
 <%= link_to 'Upload Photos', new_post_path %>
 <br/>
-<form action="/posts/destroy">
 <% @posts.each do |post| %>
   <h3><b><%= post.title %><b/></h3>
   <p>
     <%= link_to 'Show', post %>
     <%= link_to 'Edit', edit_post_path(post) %>
     <%= link_to 'Destroy', post, method: :delete, data: { confirm: 'Are you sure?' } %>
-    <input type="checkbox" name="Destroy" value=<%= post.id %> >Destroy<br>
   </p>
   <p>
     <div style="width:50px, height:auto">
@@ -19,4 +17,3 @@
   </p>
   <hr/>
 <% end %>
-</form>
