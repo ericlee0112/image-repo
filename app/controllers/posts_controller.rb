@@ -23,7 +23,6 @@ class PostsController < ApplicationController
       result = @post.save
     else
       result = ImageWorker.perform_async(post_params[:images], post_params[:title])
-      flash[:notice] = 'photos bulk-uploaded to repository'
       sleep(0.5)
     end
     
@@ -32,7 +31,7 @@ class PostsController < ApplicationController
         format.html { redirect_to '/', notice: 'Post(s) were successfully uploaded.' }
         format.json { render :index, status: :created}
       else
-        format.html { render :new }
+        format.html { render :new, notice: 'Post(s) failed to upload' }
         format.json { render json: result.errors, status: :unprocessable_entity }
       end
     end
@@ -44,7 +43,7 @@ class PostsController < ApplicationController
         format.html { redirect_to @post, notice: 'Post was successfully updated.' }
         format.json { render :show, status: :ok, location: @post }
       else
-        format.html { render :edit }
+        format.html { render :edit, notice: 'Post failed to update' }
         format.json { render json: @post.errors, status: :unprocessable_entity }
       end
     end
